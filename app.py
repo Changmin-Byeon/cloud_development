@@ -1,19 +1,31 @@
-from flask import Flask, render_template, request  # from module import Class.
+from flask import Flask, render_template, request, redirect  # from module import Class.
 
 import os
+import re
 import swim_utils
 import hfpy_utils
 
 app = Flask(__name__)
 
+files = os.listdir(swim_utils.FOLDER)
+files.remove(".DS_Store")
+names = set()
+name_dict = {}
+
+for swimmer in files:
+        names.add(swim_utils.get_swimmers_data(swimmer)[0])
+
 
 @app.get("/")
-@app.get("/hello")
 def hello():
     return "Hello from my first web app - cool, isn't it?"  # ANY string.
 
 
-@app.get("/chart")
+@app.route('/redirect', methods=['GET','POST'])
+def back_to_select_swimmer():
+    return redirect("/getswimmers")
+
+@app.post("/chart")
 def display_chart():
     (
         name,
@@ -23,7 +35,7 @@ def display_chart():
         the_times,
         converts,
         the_average,
-    ) = swim_utils.get_swimmers_data("Katie-9-100m-Free.txt")
+    ) = swim_utils.get_swimmers_data(request.form["event"])
 
     the_title = f"{name} (Under {age}) {distance} - {stroke}"
     from_max = max(converts) + 50
@@ -41,17 +53,11 @@ def display_chart():
     )
 
 
-# 1025
 @app.get("/getswimmers")
 def get_swimmers_name():
-    files = os.listdir(swim_utils.FOLDER)
-    files.remove(".DS_Store")
-    names = set()
-    for swimmer in files:
-        names.add(swim_utils.get_swimmers_data(swimmer)[0])
 
     return render_template(
-        "select.html",
+        "select_swimmer.html",
         title="Select a swimmer to chart",
         data=sorted(names),
     )
@@ -59,10 +65,19 @@ def get_swimmers_name():
 
 @app.post("/displayevents")
 def get_swimmer_events():
-    return request.form["swimmer"]
+    file_list = []
+    for event in files:
+        if re.match(request.form["swimmer"], event):
+            file_list.append(event)
+            name_dict[request.form["swimmer"]] = file_list
 
+        
+    return render_template(
+        "select_event.html",
+        title="Select a event to chart",
+        files=sorted(name_dict[request.form["swimmer"]]),
+    )
 
-#
 
 if __name__ == "__main__":
     app.run(debug=True)  # Starts a local (test) webserver, and waits... forever.

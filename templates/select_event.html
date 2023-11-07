@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+
+    {% block body %}
+
+
+    <form method="post" action="/chart">
+        <label for="event">Choose a event:</label>
+
+        <select name="event" id="event">
+        
+            {% for event in files %}
+
+                <option value="{{event}}">{{event}}</option>
+            
+            {% endfor %}   
+
+        </select>
+        <p>
+            <input type="submit" value="Select">
+        </p>
+    </form>
+
+{% endblock %}
