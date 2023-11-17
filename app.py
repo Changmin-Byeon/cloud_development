@@ -29,7 +29,7 @@ for swimmer in files:
 
 @app.get("/")
 def hello():
-    return "Hello from my first web app - cool, isn't it?"  # ANY string.
+    return 'Hello from my first <a href="/getswimmers">web app</a> - cool, isn\'t it?'  # ANY string.
 
 
 @app.route("/redirect", methods=["GET", "POST"])
